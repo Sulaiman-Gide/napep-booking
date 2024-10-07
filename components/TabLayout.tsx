@@ -5,6 +5,7 @@ import HomeNonactive from '@/assets/images/home-nonactive.svg';
 import profileIcon from '@/assets/images/person.png';
 import CustomText from './CustomText';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 interface TabIconProps {
   focused: boolean;
@@ -49,6 +50,21 @@ const TabLayout: React.FC<TabLayoutProps> = ({ tabBarVisible }) => {
         }}
       />
       <Tabs.Screen
+        name="wallet"
+        options={{
+          tabBarLabel: ({ focused }: TabIconProps) => (
+            <CustomText style={[styles.label, { color: focused ? '#003AA5' : '#757575' }]}>
+              Wallet
+            </CustomText>
+          ),
+          tabBarIcon: ({ focused }: TabIconProps) => (
+            <View style={styles.iconContainer}>
+              <MaterialIcons name="payment" size={24} color="#757575" style={[styles.icon, focused && styles.iconFocused]} />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="payment"
         options={{
           tabBarLabel: ({ focused }: TabIconProps) => (
@@ -58,7 +74,7 @@ const TabLayout: React.FC<TabLayoutProps> = ({ tabBarVisible }) => {
           ),
           tabBarIcon: ({ focused }: TabIconProps) => (
             <View style={styles.iconContainer}>
-              <MaterialIcons name="payment" size={24} color="#757575" style={[styles.icon, focused && styles.iconFocused]} />
+              <FontAwesome6 name="money-bill-transfer" size={24} color="#757575" style={[styles.icon, focused && styles.iconFocused]} />
             </View>
           ),
         }}
@@ -83,6 +99,12 @@ const TabLayout: React.FC<TabLayoutProps> = ({ tabBarVisible }) => {
       />
       <Tabs.Screen 
         name="howItWorks" 
+        options={{
+          href: null,
+        }} 
+      />
+       <Tabs.Screen 
+        name="dashboard" 
         options={{
           href: null,
         }} 

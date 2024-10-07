@@ -78,7 +78,7 @@ export default function CreateAccount() {
           source={require('@/assets/images/background.jpg')}
           style={tw.style('w-full', { flex: 0.25 })} 
         />
-        <TouchableOpacity style={tw.style('', {position: "absolute", top: 55, left: 20})} onPress={() => router.push('/auth/login')}>
+        <TouchableOpacity style={tw.style('', {position: "absolute", top: 55, left: 20})} onPress={() => router.push('/auth')}>
           <Ionicons name="arrow-back-sharp" size={27} color="white" />
         </TouchableOpacity>
         <View style={tw.style('w-full rounded-t-[20px] bg-white flex-1 pt-8', { flex: 1, paddingHorizontal: 16, gap: 32 })}>
