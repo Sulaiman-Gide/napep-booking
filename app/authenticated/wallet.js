@@ -24,31 +24,31 @@ const Content = () => {
   const bottomSheetRef = useRef(null);
   const successBottomSheetRef = useRef(null);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const name = await AsyncStorage.getItem('loggedInUserName');
-        const balance = await AsyncStorage.getItem('loggedInUserBalance');
-        const totalSpent = await AsyncStorage.getItem('totalSpent');
-  
-        if (name) {
-          setUserName(name);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserData = async () => {
+        try {
+          const name = await AsyncStorage.getItem('loggedInUserName');
+          const balance = await AsyncStorage.getItem('loggedInUserBalance');
+          const totalSpent = await AsyncStorage.getItem('totalSpent');
+      
+          if (name) {
+            setUserName(name);
+          } else {
+            setUserName('Guest');
+          }
+      
+          setUserBalance(parseFloat(balance) || 0);
+          setTotalSpent(parseFloat(totalSpent) || 0);
+        } catch (error) {
+          console.error("Error fetching user data: ", error);
         }
-  
-        if (balance) {
-          setUserBalance(parseFloat(balance));
-        }
-  
-        if (totalSpent) {
-          setTotalSpent(parseFloat(totalSpent));
-        }
-      } catch (error) {
-        console.error("Error fetching user data: ", error);
-      }
-    };
-  
-    fetchUserData();
-  }, []);
+      };      
+    
+      fetchUserData();
+
+      }, [])
+    );
 
   const openPaymentSheet = () => {
     if (bottomSheetRef.current) {
@@ -62,13 +62,13 @@ const Content = () => {
     AsyncStorage.setItem('loggedInUserBalance', newBalance.toString());
     setIsPaymentSuccessful(true);
 
-    // Create a new transaction
+    // Create a new transaction (credit)
     const newTransaction = {
-      id: transactions.length + 1,
-      name: 'Account Credit',
-      type: 'Wallet credit',
-      amount: `+ ₦ ${amount}`,
-      color: 'green'
+        id: transactions.length + 1,
+        name: 'Account Credit',
+        type: 'Wallet credit',
+        amount: `+ ₦ ${amount}`,
+        color: 'green'
     };
 
     // Update transactions state
@@ -78,68 +78,55 @@ const Content = () => {
     // Save transactions to AsyncStorage
     AsyncStorage.setItem('userTransactions', JSON.stringify(updatedTransactions));
 
-    // Update the total spent if this is a debit transaction
-    const debitTransaction = {
-      id: transactions.length + 2,
-      name: 'Payment',
-      type: 'Wallet debit',
-      amount: `- ₦ ${amount}`,
-      color: 'red'
-    };
-    
-    const newTotalSpent = totalSpent + parseFloat(amount);
+    // Update the total spent if applicable
+    const newTotalSpent = totalSpent; // No need to update totalSpent for credit transactions
     setTotalSpent(newTotalSpent);
-    
-    const finalTransactions = [...updatedTransactions, debitTransaction];
-    setTransactions(finalTransactions);
-    
-    // Save the updated transactions to AsyncStorage
-    AsyncStorage.setItem('userTransactions', JSON.stringify(finalTransactions));
 
     if (successBottomSheetRef.current) {
-      successBottomSheetRef.current.expand();
+        successBottomSheetRef.current.expand();
     }
-  };
+};
+
 
 
   const displayedTransactions = showAll ? transactions : transactions.slice(0, 5);
 
   return (
     <View style={tailwind.style('bg-white flex-1')}>
-      <View style={tailwind.style({ gap: 8, marginTop: 10, paddingHorizontal: 16, })}>
+      <View style={tailwind.style({ gap: 8, paddingHorizontal: 5, marginHorizontal: 10 })}>
         {/* Title Section */}
-        <Text style={tailwind.style('text-[#1F1F1F]', { fontWeight: 'bold', fontFamily: 'nunitoSansBold', fontSize: 26, lineHeight: 34 })}>
+        <Text style={tailwind.style('text-[#1F1F1F]', { fontWeight: 800, fontFamily: 'nunitoSansBold', fontSize: 26, lineHeight: 34 })}>
           Wallet
         </Text>
 
         {/* Subtitle / Description */}
-        <CustomText style={tailwind.style('text-[#7D7D7D]', { fontSize: 16, lineHeight: 24, fontWeight: 'normal', fontFamily: 'nunitoSansMedium' })}>
+        <CustomText style={tailwind.style('text-[#7D7D7D]', { fontSize: 16, lineHeight: 24, fontWeight: 400, fontFamily: 'nunitoSansMedium' })}>
           Complete your payment to fund your wallet and start using our services seamlessly.
         </CustomText>
       </View>
       {/** First Card */}
       <LinearGradient
         colors={['#193a69', '#1e4985', '#123566']} 
-        style={tailwind.style('h-[170px] py-5 px-3', { borderRadius: 20, marginTop: 20, marginHorizontal: 10, })}>
+        style={tailwind.style('h-[170px] py-5 px-3', { borderRadius: 20, marginTop: 20, marginHorizontal: 15, })}>
         <View style={tailwind.style('justify-between items-start flex-row flex-1')}>
           <View style={tailwind.style('w-full justify-start items-start gap-2 pl-1 flex-1', { fontFamily: 'nunitoSansMedium' })}>
             <Text style={tailwind.style('text-base font-semibold text-gray-100/90')}>Wallet Balance</Text>
             <Text style={tailwind.style('text-3xl text-white', { fontFamily: 'nunitoSansExtraBold' })}>
               ₦ {userBalance.toFixed(2)}
             </Text>
-            <Text style={tailwind.style('text-base font-semibold text-gray-100/90')}>Total Spent</Text>
+            <Text style={tailwind.style('text-base font-semibold text-gray-100/90')}>Total Money Spent</Text>
             <Text style={tailwind.style('text-2xl text-white', { fontFamily: 'nunitoSansExtraBold' })}>
               ₦ {totalSpent.toFixed(2)}
             </Text>
           </View>
           <TouchableOpacity onPress={openPaymentSheet} style={tailwind.style('bg-[#193a6980] border border-gray-50/50 flex-row justify-center items-center gap-2', { borderRadius: 20, paddingHorizontal: 18, paddingVertical: 12 })}>
             <PlusIcon width={16} height={16} />
-            <Text style={tailwind.style('text-white', { fontSize: 14, fontWeight: '600' })}>Fund wallet</Text>
+            <Text style={tailwind.style('text-white', { fontSize: 14, fontWeight: 600 })}>Fund wallet</Text>
           </TouchableOpacity>
         </View>
       </LinearGradient>
 
-      <View style={tailwind.style('flex-1',{ paddingHorizontal: 16, paddingVertical: 25, gap: 16 })}>
+      <View style={tailwind.style('flex-1',{ paddingHorizontal: 16, paddingVertical: 25, gap: 16, paddingHorizontal: 20, borderWidth: 2, borderColor: 'transparent' })}>
         <View style={tailwind.style('justify-between items-center flex-row')}>
           <Text style={tailwind.style({ fontFamily: 'nunitoSansBold', fontWeight: 700, fontSize: 18, lineHeight: 24, color: '#242424' })}>
             Transaction history
@@ -216,7 +203,7 @@ export default function AssetsPage() {
   return (
     Platform.OS === 'android' ? (
       <SafeAreaView style={tailwind.style('bg-white flex-1')} edges={['top']}>
-        <View style={tailwind.style({ paddingTop: 16, paddingBottom: 8, paddingHorizontal: 16 })}>
+        <View style={tailwind.style({ paddingTop: 16, paddingBottom: 8, paddingHorizontal: 10 })}>
           <TouchableOpacity onPress={() => router.push('/authenticated')}>
             <Entypo name="chevron-small-left" size={27} color="#242424" />
           </TouchableOpacity>
@@ -225,7 +212,7 @@ export default function AssetsPage() {
       </SafeAreaView>
     ) : (
       <SafeAreaView style={tailwind.style('bg-white flex-1')} edges={['top']}>
-        <View style={tailwind.style({ paddingTop: 16, paddingBottom: 8, paddingHorizontal: 16 })}>
+        <View style={tailwind.style({ paddingTop: 16, paddingBottom: 8, paddingHorizontal: 10 })}>
           <TouchableOpacity onPress={() => router.push('/authenticated')}>
             <Entypo name="chevron-small-left" size={27} color="#242424" />
           </TouchableOpacity>

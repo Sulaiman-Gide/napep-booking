@@ -26,40 +26,41 @@ export default function Home() {
     }, [setTabBarVisible])
   );
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const name = await AsyncStorage.getItem('loggedInUserName');
-        const balance = await AsyncStorage.getItem('loggedInUserBalance');
-        const totalSpent = await AsyncStorage.getItem('totalSpent');
-  
-        if (name) {
-          setUserName(name);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserData = async () => {
+        try {
+          const name = await AsyncStorage.getItem('loggedInUserName');
+          const balance = await AsyncStorage.getItem('loggedInUserBalance');
+          const totalSpent = await AsyncStorage.getItem('totalSpent');
+      
+          if (name) {
+            setUserName(name);
+          } else {
+            setUserName('Guest');
+          }
+      
+          setUserBalance(parseFloat(balance) || 0);
+          setTotalSpent(parseFloat(totalSpent) || 0);
+        } catch (error) {
+          console.error("Error fetching user data: ", error);
         }
-  
-        if (balance) {
-          setUserBalance(parseFloat(balance));
-        }
-  
-        if (totalSpent) {
-          setTotalSpent(parseFloat(totalSpent));
-        }
-      } catch (error) {
-        console.error("Error fetching user data: ", error);
-      }
-    };
-  
-    fetchUserData();
+      };      
+    
+      fetchUserData();
 
-    // Get user location
+      }, [])
+    );
+
+  useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+        Alert.alert('Permission to access location was denied');
         return;
       }
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      let loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc);
     })();
   }, []);
 
@@ -95,10 +96,30 @@ export default function Home() {
       Alert.alert('Set a destination first');
       return;
     }
+  
+    if (!location) {
+      Alert.alert('Location not found. Please enable location services.');
+      return;
+    }
+
+    if (userBalance <= 0) {
+      Alert.alert('Insufficient Balance', 'You need to fund your wallet before booking a ride.');
+      return;
+    }
+
+    if (!destination) {
+      Alert.alert('Set a destination first');
+      return;
+    }
 
     // Calculate the distance in meters
     const distanceInMeters = getDistance(location.coords, destination);
-    const cost = distanceInMeters * 300; // Cost is 300 naira per meter
+    const cost = Math.round(distanceInMeters * 2);
+
+    if (cost > userBalance) {
+      Alert.alert('Insufficient Balance', `You do not have enough balance for this ride. Your wallet balance is: ₦${userBalance} while the trip cost is: ₦${cost}`);
+      return;
+    }
 
     // Reverse geocode the destination to get the address
     const address = await getReverseGeocode(destination);
@@ -165,8 +186,9 @@ export default function Home() {
         <View style={{ flex: 1, gap: 24 }}>
           <View style={tailwind.style('flex-row justify-between items-center', { marginTop: 25 })}>
             <Text style={tailwind.style({ fontFamily: 'nunitoSansExtraBold', fontWeight: 700, fontSize: 20, lineHeight: 24.55, color: "#072F4A" })}>
-              Welcome {userName}
+              Welcome {userName || 'Guest'}
             </Text>
+
             <View>
               <UserAvatar width={38} height={38} />
             </View>

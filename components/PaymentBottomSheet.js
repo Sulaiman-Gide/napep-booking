@@ -1,15 +1,26 @@
-import React, { forwardRef, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Keyboard, ActivityIndicator, ScrollView } from 'react-native';
-import BottomSheet, { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import React, { forwardRef, useEffect, useState, useCallback } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Keyboard, ActivityIndicator, ScrollView, TextInput } from 'react-native';
+import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import Success from '@/assets/images/success-svg.svg';
 
 const PaymentBottomSheet = forwardRef(({ onSuccess }, ref) => {
-  const snapPoints = ['100%', '95%'];
+  const snapPoints = ['90%', '85%'];
   const [amount, setAmount] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const renderBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        {...props}
+      />
+    ),
+    []
+  );
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -62,9 +73,10 @@ const PaymentBottomSheet = forwardRef(({ onSuccess }, ref) => {
   return (
     <BottomSheet
       ref={ref}
-      index={0}
+      index={-1}
       snapPoints={snapPoints}
       enablePanDownToClose
+      backdropComponent={renderBackdrop}
       backgroundComponent={({ style }) => (
         <View style={[style, styles.background]} />
       )}
@@ -78,46 +90,50 @@ const PaymentBottomSheet = forwardRef(({ onSuccess }, ref) => {
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Card Number</Text>
-            <BottomSheetTextInput
+            <TextInput
               style={styles.input}
               placeholder="Enter card number"
               keyboardType="numeric"
               maxLength={11}
               value={cardNumber}
+              placeholderTextColor="#888888"
               onChangeText={setCardNumber}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Expiry Date (MM/YY)</Text>
-            <BottomSheetTextInput
+            <TextInput
               style={styles.input}
               placeholder="MM/YY"
               keyboardType="numeric"
               maxLength={4}
               value={expiryDate}
+              placeholderTextColor="#888888"
               onChangeText={setExpiryDate}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>CVV</Text>
-            <BottomSheetTextInput
+            <TextInput
               style={styles.input}
               placeholder="***"
               keyboardType="numeric"
               secureTextEntry
               maxLength={3}
               value={cvv}
+              placeholderTextColor="#888888"
               onChangeText={setCvv}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Amount</Text>
-            <BottomSheetTextInput
+            <TextInput
               style={styles.input}
               placeholder="Enter amount"
+              placeholderTextColor="#888888"
               keyboardType="numeric"
               value={amount}
               onChangeText={setAmount}
@@ -128,7 +144,7 @@ const PaymentBottomSheet = forwardRef(({ onSuccess }, ref) => {
             {loading ? (
               <ActivityIndicator size="small" color="white" />
             ) : (
-              <Text style={styles.buttonText}>Pay ₦{amount}</Text>
+              <Text style={styles.buttonText}>Pay ₦ {amount.toLocaleString()}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -137,34 +153,48 @@ const PaymentBottomSheet = forwardRef(({ onSuccess }, ref) => {
   );
 });
 
-const SuccessBottomSheet = forwardRef(({ onClose }, ref) => (
-  <BottomSheet
-    ref={ref}
-    index={0}
-    snapPoints={['45%']}
-    enablePanDownToClose
-    backgroundComponent={({ style }) => (
-      <View style={[style, styles.background]} />
-    )}
-  >
-    <View style={styles.successContent}>
-      <Success />
-      <Text style={styles.successMessage}>Funds have been added!</Text>
-      <TouchableOpacity style={styles.successButton} onPress={onClose}>
-        <Text style={styles.buttonText}>Close</Text>
-      </TouchableOpacity>
-    </View>
-  </BottomSheet>
-));
+const SuccessBottomSheet = forwardRef(({ onClose }, ref) => {
+  const renderBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        {...props}
+      />
+    ),
+    []
+  );
+
+  return (
+    <BottomSheet
+      ref={ref}
+      index={0}
+      snapPoints={['45%']}
+      enablePanDownToClose
+      backdropComponent={renderBackdrop}
+      backgroundComponent={({ style }) => (
+        <View style={[style, styles.background]} />
+      )}
+    >
+      <View style={styles.successContent}>
+        <Success />
+        <Text style={styles.successMessage}>Funds have been added!</Text>
+        <TouchableOpacity style={styles.successButton} onPress={onClose}>
+          <Text style={styles.buttonText}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </BottomSheet>
+  );
+});
 
 const styles = StyleSheet.create({
   background: {
-    backgroundColor: '#ebebeb',
+    backgroundColor: '#fff',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },
   scrollContainer: {
-    padding: 20,
+    padding: 15,
   },
   sheetContent: {
     flexGrow: 1,
@@ -172,21 +202,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    fontFamily: 'nunitoSansExtraBold',
     color: '#1F1F1F',
   },
   description: {
-    marginVertical: 20,
+    marginTop: 10,
+    marginBottom: 20,
     fontSize: 16,
     color: '#555555',
+    fontFamily: 'nunitoSansBold',
   },
   inputContainer: {
     marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '400',
     color: '#1F1F1F',
-    marginBottom: 5,
+    marginBottom: 8,
   },
   input: {
     height: 40,
@@ -194,18 +227,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 10,
     borderRadius: 10,
-    backgroundColor: '#ffffff',
-    fontSize: 16,
+    backgroundColor: 'white',
+    fontFamily: 'nunitoSansMedium',
+    fontSize: 14,
   },
   button: {
+    marginTop: 10,
     backgroundColor: '#193a69',
     padding: 15,
-    borderRadius: 20,
+    borderRadius: 50,
     alignItems: 'center',
   },
   buttonText: {
     color: 'white',
-    fontSize: 18,
+    fontFamily: 'nunitoSansBold',
+    fontSize: 16,
   },
   successContent: {
     padding: 20,

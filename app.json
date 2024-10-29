@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "booking-napep",
+    "name": "Easy Transport",
     "slug": "booking-napep",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "package": "com.dev_gide.bookingnapep"
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +36,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cdea9f0d-a9af-4c3b-9ecc-3b4f828db5c4"
+      }
     }
   }
 }

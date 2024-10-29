@@ -46,14 +46,12 @@ export default function Login() {
     // Simulating a network request
     setTimeout(async () => {
       try {
-        const storedUser = await AsyncStorage.getItem(email);
+        const storedUser = await AsyncStorage.getItem(email.toLowerCase());
         const user = JSON.parse(storedUser);
   
-        // Check if user exists and verify password
-        if (user && user.email === email && user.password === password) {
+        if (user && user.email === email.toLowerCase() && user.password === password) {
           Alert.alert("Login Successful", `Welcome back, ${user.fullName}!`);
   
-          // Store user data in AsyncStorage
           await AsyncStorage.setItem('loggedInUserName', user.fullName);
           await AsyncStorage.setItem('loggedInUserBalance', user.accountBalance.toString());
           await AsyncStorage.setItem('loggedInUserEmail', user.email);
@@ -64,13 +62,14 @@ export default function Login() {
         }
       } catch (error) {
         Alert.alert("Error", "An error occurred while logging in.");
+        console.error("Login error:", error);
       } finally {
         setIsLoading(false);
       }
     }, 2000);
-  };
+  };  
   
-
+  
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{ flex: 1, alignItems: 'center', backgroundColor: "#003b6f", padding: 0 }}>

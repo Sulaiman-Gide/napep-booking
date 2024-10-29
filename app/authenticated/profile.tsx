@@ -96,6 +96,10 @@ export default function Profile() {
         <Text style={tailwind.style('mx-auto mb-3 pt-1',{ fontFamily: 'nunitoSansExtraBold', fontWeight: 400, fontSize: 16, lineHeight: 24.55, color: "#072F4A90" })}>
           Developed by: Shamwilu Umar
         </Text>
+
+        <Text style={tailwind.style('mx-auto mb-3 pt-1',{ fontFamily: 'nunitoSansBold', fontWeight: 400, fontSize: 16, lineHeight: 24.55, color: "#072F4A9020" })}>
+          App Version: <Text style={{  fontFamily: 'nunitoSansBold' }}> V1.2</Text>
+        </Text>
       </View>
     </SafeAreaView>
   );

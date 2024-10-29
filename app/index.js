@@ -15,7 +15,8 @@ export default function Login() {
   useEffect(() => {
     if (isMounted) {
       if (user) {
-        router.replace('/authenticated');
+
+        router.replace('/authenticated/payment');
       } else {
         router.replace('/auth');
       }

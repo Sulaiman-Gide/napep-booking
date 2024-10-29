@@ -19,7 +19,7 @@ const Content = () => {
         </Text>
 
         {/* Subtitle / Description */}
-        <Text style={tailwind.style('text-[#7D7D7D] tracking-wider text-base', { fontSize: 16, lineHeight: 24, fontWeight: 'normal', fontFamily: 'nunitoSans' })}>
+        <Text style={tailwind.style('text-[#7D7D7D] tracking-wider text-base', { fontSize: 16, lineHeight: 24, fontWeight: 400, fontFamily: 'nunitoSansBold' })}>
           Here is a complete guide on how our mobile app works.
         </Text>
       </View>
